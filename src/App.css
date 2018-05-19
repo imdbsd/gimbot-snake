@@ -5,7 +5,7 @@
 
 @media only screen and (min-width: 1024px) {
   .app__wrapper{
-    max-width: 400px;
+    max-width: 300px;
   }
 }
 
@@ -52,9 +52,9 @@
   right: -85px;
 }
 
-.board__wrapper{
-  height: 400px;
-  width: 300px;
+.board__wrapper{  
+  height: 300px;
+  width: 260px;
   background-color: #c4d0a2;
   margin: 20px auto 10px;
   box-shadow: inset 3px 3px rgba(0,0,0,0.15);
@@ -115,19 +115,31 @@
 }
 
 .app__screen-wrapper{
+  text-align: center;
   background-color: #777;
   padding: 1px 0 10px;
   border-radius: 5px;
 }
-.score__score-text{
-  color: #fff;
-  display: inline-block;
-  padding: 5px;
-}
-.score__score-point{
-  padding: 5px;
+
+.app__notification-wrapper{
+  width: 260px;    
   background-color: #c4d0a2;
-  width: 64px;
-  display: inline-block;
+  margin: auto;
+  padding: 10px 0;
   box-shadow: inset 3px 3px rgba(0,0,0,0.15);
+}
+
+.notification__compliment-wrapper,
+.notification__score-wrapper{
+  font-family: 'digitalClock';
+  font-size: 24px;
+  margin: 0 10px;
+}
+
+.app__notification-wrapper div{
+  display: inline-block;
+}
+
+.compliment__good{
+  font-size: 12px;
 }

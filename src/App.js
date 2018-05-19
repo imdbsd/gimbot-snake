@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
 import './App.css';   
-
+import eatAudio from './Beep8.wav';
+const eat = new Audio(eatAudio);
+console.log(eat)
 class App extends Component {
   constructor(){
     super();
     this.state = {
       directions: "right",
       boards: {
-        width: 30,
-        height: 40
+        width: 26,
+        height: 30
       },
       score: 0,
+      compliment: "",
       appBoards: [],
       snakeBody: [],
       isPause: false,
@@ -93,7 +96,7 @@ class App extends Component {
         }
         break;
       default:
-        console.log("nothing");
+        
     }
   }
   game(){
@@ -115,7 +118,19 @@ class App extends Component {
       let tail = bodies.pop();
       // console.log(headY, headX)
       if(headX === this.state.foodPos.x && headY === this.state.foodPos.y){        
-        // console.log("termakan")        
+        // console.log("termakan")                
+        eat.play()
+        .then((res) =>{
+          console.log(res)
+        })
+        .catch(err => {
+          console.log(err)
+        });
+        if((this.state.score + 1) % 10 === 0){          
+          this.setState({
+            compliment: `<div class="compliment__good">Boleh <br> juga lu.</div>`
+          })
+        }
         this.setState({
           needFood: true,
           score: this.state.score + 1
@@ -124,7 +139,7 @@ class App extends Component {
       }      
       switch(directions){
         case "right":         
-          if(headX + 1 < 30){
+          if(headX + 1 < this.state.boards.width){
             bodies.unshift({
               x: headX + 1,
               y: headY
@@ -138,7 +153,7 @@ class App extends Component {
           }          
           break;
         case "down": 
-          if(headY + 1 < 40){
+          if(headY + 1 < this.state.boards.height){
             bodies.unshift({
               x: headX,
               y: headY + 1
@@ -160,7 +175,7 @@ class App extends Component {
           }
           else{
             bodies.unshift({
-              x: 29,
+              x: this.state.boards.width - 1,
               y: headY
             })
           }          
@@ -175,7 +190,7 @@ class App extends Component {
           else{
             bodies.unshift({
               x: headX,
-              y: 39
+              y: this.state.boards.height - 1
             })
           }          
           break;      
@@ -190,7 +205,8 @@ class App extends Component {
             isDead = true
             this.setState({
               isPause: true,
-              isDead: true
+              isDead: true,
+              compliment: `<div class="compliment__bad">Bego lu!!!</div>`
             })
           }
           boards[body.y][body.x] = `<div class="board__cell snake__body head"></div>`; // redraw head
@@ -204,7 +220,7 @@ class App extends Component {
       })
       // boards[bodies[0].y][bodies[0].x] = `<div class="board__cell snake__body head"></div>`; // redraw head      
       if(!isDead){
-        boards[tail.y][tail.x] = `<div class="board__cell"></div>`;            
+        boards[tail.y][tail.x] = `<div class="board__cell empty-cell" x="${tail.x}" y="${tail.y}"></div>`;            
       }      
       this.setState({
         snakeBody: bodies,
@@ -218,24 +234,18 @@ class App extends Component {
     if(this.state.needFood){
       console.log("generate food")
       let boards = this.state.appBoards;
-      let foodX = Math.round(Math.random() * this.state.boards.width);
-      let foodY = Math.round(Math.random() * this.state.boards.height);
-      if(foodX === this.state.boards.width){
-        foodX -= 1;
-      }
-      else if(foodY === this.state.boards.height){
-        foodY -= 1;
-      }      
-      while(boards[foodY][foodX] !== `<div class="board__cell"></div>`){
-        let foodX = Math.round(Math.random() * this.state.boards.width);
-        let foodY = Math.round(Math.random() * this.state.boards.height);
-        if(foodX === this.state.boards.width){
-          foodX -= 1;
-        }
-        else if(foodY === this.state.boards.height){
-          foodY -= 1;
-        }
-      }            
+      // let foodX = Math.round(Math.random() * this.state.boards.width);
+      // let foodY = Math.round(Math.random() * this.state.boards.height);
+      // if(foodX === this.state.boards.width){
+      //   foodX -= 1;
+      // }
+      // else if(foodY === this.state.boards.height){
+      //   foodY -= 1;
+      // }            
+      let emptyCells = document.getElementsByClassName("empty-cell");
+      let foodIndex = Math.round(Math.random() * emptyCells.length);
+      let foodX = parseInt(emptyCells[foodIndex].getAttribute("x"), 10);
+      let foodY = parseInt(emptyCells[foodIndex].getAttribute("y"), 10);
       console.log(foodX, foodY)
       boards[foodY][foodX] = `<div class="board__cell board__food"></div>`;
       this.setState({
@@ -277,7 +287,7 @@ class App extends Component {
       for(let height = 0; height < this.state.boards.height; height++){
         let row = [];
         for(let width = 0; width < this.state.boards.width; width++){
-          row.push(`<div class="board__cell"></div>`);
+          row.push(`<div class="board__cell empty-cell" x="${width}" y="${height}"></div>`);
         }
         boards.push(row);        
       }
@@ -298,8 +308,15 @@ class App extends Component {
           <h1 className="app__title">GIMBOT</h1>
         </section>
         <div className="app__screen-wrapper">          
-          <div className="board__wrapper" dangerouslySetInnerHTML={{__html: stringRow.join("")}}></div> 
-          <div className="app__score-wrapper"><span className="score__score-text">Points: </span><span className="score__score-point">{this.state.score}</span></div>
+          <div className="board__wrapper" dangerouslySetInnerHTML={{__html: stringRow.join("")}}></div>           
+          <div className="app__notification-wrapper">
+            <div className="notification__score-wrapper">
+              <span>Score: </span>
+              <span>{this.state.score}</span>
+            </div>
+            <div className="notification__compliment-wrapper" dangerouslySetInnerHTML={{__html: this.state.compliment}}>              
+            </div>
+          </div>          
         </div>
         <section className="app__controller-wrapper">
           <div className="controller__direction-wrapper">

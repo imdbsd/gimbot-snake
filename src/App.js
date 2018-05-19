@@ -1,7 +1,15 @@
 import React, { Component } from 'react';
 import './App.css';   
-import eatAudio from './Beep8.wav';
+import eatAudio from './assets/sounds/Beep8.wav';
+import bolehJugaLu from './assets/sounds/boleh-juga-lu.wav';
+import begoLu from './assets/sounds/bego-lu.wav';
+import moveSound from './assets/sounds/move.wav';
+
 const eat = new Audio(eatAudio);
+const goodCompliment = new Audio(bolehJugaLu);
+const badComploment = new Audio(begoLu);
+const move = new Audio(moveSound);
+
 console.log(eat)
 class App extends Component {
   constructor(){
@@ -61,6 +69,9 @@ class App extends Component {
         break;
       case 37: //left
         if(this.state.directions !== "right" && this.state.directions !== "left"){
+          move.play()
+          .then()
+          .catch(err => console.log(err))
           stackMove.unshift("left");
           this.setState({
             directions: "left",
@@ -70,6 +81,9 @@ class App extends Component {
         break;
       case 38: //up
         if(this.state.directions !== "down" && this.state.directions !== "up"){
+          move.play()
+          .then()
+          .catch(err => console.log(err))
           this.setState({
             directions: "up",
             stackMove: stackMove
@@ -79,6 +93,9 @@ class App extends Component {
         break;
       case 39: //right
         if(this.state.directions !== "left" && this.state.directions !== "right"){
+          move.play()
+          .then()
+          .catch(err => console.log(err))
           this.setState({
             directions: "right",
             stackMove: stackMove
@@ -88,6 +105,9 @@ class App extends Component {
         break;
       case 40: //down
         if(this.state.directions !== "up" && this.state.directions !== "down"){
+          move.play()
+          .then()
+          .catch(err => console.log(err))
           this.setState({
             directions: "down",
             stackMove: stackMove
@@ -95,9 +115,8 @@ class App extends Component {
           stackMove.unshift("down");
         }
         break;
-      default:
-        
-    }
+      default:      
+    }    
   }
   game(){
     // move the snake        
@@ -126,7 +145,14 @@ class App extends Component {
         .catch(err => {
           console.log(err)
         });
-        if((this.state.score + 1) % 10 === 0){          
+        if((this.state.score + 1) % 10 === 0){ 
+          goodCompliment.play()
+          .then(() =>{
+
+          })
+          .catch(err => {
+            console.log(err)
+          })         
           this.setState({
             compliment: `<div class="compliment__good">Boleh <br> juga lu.</div>`
           })
@@ -208,6 +234,11 @@ class App extends Component {
               isDead: true,
               compliment: `<div class="compliment__bad">Bego lu!!!</div>`
             })
+            badComploment.play()
+            .then(() => {
+              
+            })
+            .catch(err => console.log(err))
           }
           boards[body.y][body.x] = `<div class="board__cell snake__body head"></div>`; // redraw head
         }

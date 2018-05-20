@@ -4,11 +4,35 @@ import eatAudio from './assets/sounds/Beep8.wav';
 import bolehJugaLu from './assets/sounds/boleh-juga-lu.wav';
 import begoLu from './assets/sounds/bego-lu.wav';
 import moveSound from './assets/sounds/move.wav';
+import rightArrow from './assets/icons/right-arrow.png';
+import leftArrow from './assets/icons/left-arrow.png';
+import githubIco from './assets/icons/github.png';
 
 const eat = new Audio(eatAudio);
 const goodCompliment = new Audio(bolehJugaLu);
-const badComploment = new Audio(begoLu);
+const badCompliment = new Audio(begoLu);
 const move = new Audio(moveSound);
+
+move.volume = 0.5;
+goodCompliment.volume = 0.5;
+badCompliment.volume = 0.5;
+move.volume = 0.5;
+
+badCompliment.onended = function(){
+  badCompliment.pause();
+}
+
+goodCompliment.addEventListener('ended', function(){
+  goodCompliment.pause();
+});
+
+move.addEventListener('ended', function(){
+  move.pause();
+});
+
+eat.addEventListener('ended', function(){
+  eat.pause();
+});
 
 class App extends Component {
   constructor(){
@@ -142,6 +166,13 @@ class App extends Component {
         ]
       ]
     }    
+    this.moveDown = this.moveDown.bind(this);
+    this.moveLeft = this.moveLeft.bind(this);
+    this.moveUp = this.moveUp.bind(this);
+    this.moveRight = this.moveRight.bind(this);
+    this.pauseGame = this.pauseGame.bind(this);
+    this.resumeGame = this.resumeGame.bind(this);
+    this.restartGame = this.restartGame.bind(this);
   }
 
   componentDidMount(){
@@ -160,6 +191,120 @@ class App extends Component {
         });        
       })
     })
+  }
+
+  pauseGame(){
+    move.play()
+    .then()
+    .catch(err => console.log(err))
+    this.setState({
+      isPause: true
+    })        
+  }
+
+  resumeGame(){
+    move.play()
+    .then()
+    .catch(err => console.log(err))
+    this.setState({
+      isPause: false
+    })        
+  }
+
+  restartGame(){
+    let boards = this.state.appBoards;
+    let foodPos = this.state.foodPos;
+    let snakeBody = this.state.snakeBody;
+
+    boards[foodPos.y][foodPos.x] = `<div class="board__cell empty-cell" x="${foodPos.x}" y="${foodPos.y}"></div>`;
+    snakeBody.forEach(body => {
+      boards[body.y][body.x] = `<div class="board__cell empty-cell" x="${body.x}" y="${body.y}"></div>`;
+    })
+
+    move.play()
+    .then()
+    .catch(err => console.log(err))
+    this.setState({      
+      appBoards: boards,
+      isDead: false,
+      isPause: false,
+      needFood: true,
+      directions: "right"
+    },() => {
+      this.setState({
+        snakeBody: [
+          {
+            x: 3,
+            y: 9
+          },
+          {
+            x: 2,
+            y: 9
+          },
+          {
+            x: 1,
+            y: 9
+          }
+        ]
+      })
+    }
+    )
+  }
+
+  moveDown(){
+    let stackMove = this.state.stackMove;
+    if(this.state.directions !== "up" && this.state.directions !== "down"){
+      move.play()
+      .then()
+      .catch(err => console.log(err))
+      this.setState({
+        directions: "down",
+        stackMove: stackMove
+      })
+      stackMove.unshift("down");
+    }    
+  }  
+
+  moveLeft(){
+    let stackMove = this.state.stackMove;
+    if(this.state.directions !== "right" && this.state.directions !== "left"){
+      move.play()
+      .then()
+      .catch(err => console.log(err))
+      stackMove.unshift("left");
+      this.setState({
+        directions: "left",
+        stackMove: stackMove
+      })
+    } 
+  }
+  
+  moveUp(){
+    let stackMove = this.state.stackMove;
+    if(this.state.directions !== "down" && this.state.directions !== "up"){
+      move.play()
+      .then()
+      .catch(err => console.log(err))
+      this.setState({
+        directions: "up",
+        stackMove: stackMove
+      })
+      stackMove.unshift("up");
+    }
+  }
+
+  moveRight(){
+    let stackMove = this.state.stackMove;
+    if(this.state.directions !== "left" && this.state.directions !== "right"){
+      move.play()
+      .then()
+      .catch(err => console.log(err))
+      this.setState({
+        directions: "right",
+        stackMove: stackMove
+      })
+      stackMove.unshift("right");
+    }    
   }
 
   initObstacles(callback){
@@ -266,7 +411,7 @@ class App extends Component {
         // console.log("termakan")                
         eat.play()
         .then((res) =>{
-          console.log(res)
+          console.log(res)          
         })
         .catch(err => {
           console.log(err)
@@ -360,7 +505,7 @@ class App extends Component {
               isDead: true,
               compliment: `<div class="compliment__bad"><p>Bego</p><p>lu!!!</p></div>`
             })
-            badComploment.play()
+            badCompliment.play()
             .then(() => {
               
             })
@@ -466,21 +611,46 @@ class App extends Component {
               <p>{this.state.score}</p>
             </div>
             <div className="notification__compliment-wrapper" dangerouslySetInnerHTML={{__html: this.state.compliment}}></div>
-          </div>
-          {/* <div className="app__notification-wrapper">
-            <div className="notification__score-wrapper">
-              <span>Score: </span>
-              <span>{this.state.score}</span>
+            <div className="notification__credit">
+              <p className="craft">Crafted By</p>
+              <p className="craft-author"><a href="https://twitter.com/Budisuryadarma" target="_blank">imdbsd</a></p>
             </div>
-            <div className="notification__compliment-wrapper" dangerouslySetInnerHTML={{__html: this.state.compliment}}>              
-            </div>
-          </div>           */}
+          </div>          
         </div>
         <section className="app__controller-wrapper">
           <div className="controller__direction-wrapper">
-
+            <div className="controller__vertical">
+              <div className="vertical__1" onClick={this.moveUp}>
+                <img src={leftArrow} alt="up arrow"/>
+              </div>
+              <div className="vertical__2" onClick={this.moveDown}>
+                <img src={rightArrow} alt="down arrow"/>
+              </div>
+            </div>
+            <div className="controller__horizontal">
+            <div className="horizontal__1" onClick={this.moveLeft}>
+                <img src={leftArrow} alt="left arrow"/>
+              </div>
+              <div className="horizontal__2" onClick={this.moveRight}>
+                <img src={rightArrow} alt="right arrow"/>
+              </div>
+            </div>            
+          </div>
+          <div className="controller__state-wrapper">
+            <div className="controller__btn restart" onClick={this.restartGame}>
+              <span className="controller-btn__wording">RESTART</span>
+            </div>
+            <div className="controller__btn resume" onClick={this.resumeGame}>
+              <span className="controller-btn__wording">RESUME</span>
+            </div>
+            <div className="controller__btn pause" onClick={this.pauseGame}>
+              <span className="controller-btn__wording">PAUSE</span>
+            </div>
           </div>
         </section>
+        <p className="contribute-promo">contribute at 
+        <img src={githubIco} alt="github icon"/>
+        <a href="https://github.com/imdbsd/gimbot-snake" target="_blank">gimbot-snake repo</a></p>
       </div>
     );
   }

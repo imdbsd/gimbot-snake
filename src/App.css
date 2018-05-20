@@ -1,3 +1,7 @@
+html, body, #root{
+  height: 100%;
+}
+
 @font-face {
   font-family: digitalClock;
   src: url(assets/digital-7.ttf);
@@ -10,8 +14,9 @@
 }
 
 .app__wrapper{
+  height: 100%;
   background: #eee;
-  padding: 15px 10px;
+  padding: 0 10px ;
   margin: auto;
   box-shadow: 5px 5px rgba(0,0,0,0.1);
   border-radius: 5px;
@@ -53,8 +58,9 @@
 }
 
 .board__wrapper{  
-  height: 300px;
-  width: 260px;
+  display: inline-block;
+  height: 200px;
+  width: 210px;
   background-color: #c4d0a2;
   margin: 20px auto 10px;
   box-shadow: inset 3px 3px rgba(0,0,0,0.15);
@@ -78,7 +84,8 @@
 }
 
 .board__food::after,
-.snake__body::after{
+.snake__body::after,
+.board__cell.obstacle::after{
   position: absolute;
   content: "";
   top: 0;
@@ -89,7 +96,9 @@
   margin: 2.5px;
 }
 
-.board__cell.snake__body::before{
+.board__cell.snake__body::before,
+.board__cell.obstacle::before,
+.board__food::before{
   border: 0.1px solid #3a3e2d;
 }
 
@@ -98,10 +107,6 @@
 }
 .dead-game .snake__body::after{
   background-color: red;
-}
-
-.board__food::before{
-  border: 0.1px solid #3a3e2d;
 }
 
 .snake__body.head{
@@ -132,14 +137,41 @@
 .notification__compliment-wrapper,
 .notification__score-wrapper{
   font-family: 'digitalClock';
-  font-size: 24px;
+  font-size: 10px;
   margin: 0 10px;
+  position: absolute;
+}
+
+.notification__score-wrapper{
+  top: 10px;  
+}
+
+.notification__compliment-wrapper{
+  top: 50px;
+}
+
+.notification__score-wrapper p{
+  margin: 0 0 5px;
+  text-align: center;
 }
 
 .app__notification-wrapper div{
   display: inline-block;
 }
 
-.compliment__good{
+.compliment__good p,
+.compliment__bad p{
   font-size: 12px;
+  margin: 0 0 5px;
+}
+
+.sidebar-notification__wrapper{
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 200px;
+  background-color: #c4d0a2;
+  margin-bottom: 10px;
+  border-left: 1.5px solid #4a4a4a45;
+  box-shadow: inset 0 3px rgba(0,0,0,0.15);
 }

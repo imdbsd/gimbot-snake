@@ -10,15 +10,14 @@ const goodCompliment = new Audio(bolehJugaLu);
 const badComploment = new Audio(begoLu);
 const move = new Audio(moveSound);
 
-console.log(eat)
 class App extends Component {
   constructor(){
     super();
     this.state = {
       directions: "right",
       boards: {
-        width: 26,
-        height: 30
+        width: 21,
+        height: 20
       },
       score: 0,
       compliment: "",
@@ -31,7 +30,117 @@ class App extends Component {
         x: 0,
         y: 0
       },
-      isDead: false
+      isDead: false,
+      obstacles: [
+        [
+          {
+            x: 1,
+            y: 2
+          },
+          {
+            x: 1,
+            y: 1
+          },
+          {
+            x: 2,
+            y: 1
+          },
+          {
+            x: 3,
+            y: 1
+          }
+        ],
+        [
+          {
+            x: 17,
+            y: 1
+          },
+          {
+            x: 18,
+            y: 1
+          },
+          {
+            x: 19,
+            y: 1
+          },
+          {
+            x: 19,
+            y: 2
+          }
+        ],
+        [
+          {
+            x: 1,
+            y: 17
+          },
+          {
+            x: 1,
+            y: 18
+          },
+          {
+            x: 2,
+            y: 18
+          },
+          {
+            x: 3,
+            y: 18
+          }
+        ],
+        [
+          {
+            x: 19,
+            y: 17
+          },
+          {
+            x: 19,
+            y: 18
+          },
+          {
+            x: 18,
+            y: 18
+          },
+          {
+            x: 17,
+            y: 18
+          }
+        ],
+        [
+          {
+            x: 9,
+            y: 11
+          },
+          {
+            x: 10,
+            y: 11
+          },
+          {
+            x: 11,
+            y: 11
+          },
+          {
+            x: 12,
+            y: 11
+          }
+        ],
+        [
+          {
+            x: 9,
+            y: 7
+          },
+          {
+            x: 10,
+            y: 7
+          },
+          {
+            x: 11,
+            y: 7
+          },
+          {
+            x: 12,
+            y: 7
+          }
+        ]
+      ]
     }    
   }
 
@@ -42,30 +151,47 @@ class App extends Component {
       this.initSnake()
       .then(() => {        
         console.log("finish init snake");
-        setInterval(() => {
-          this.initFood(() => {
-            this.game()
-          })          
-        } , 100)
+        this.initObstacles(() => {
+          setInterval(() => {
+            this.initFood(() => {
+              this.game()
+            })          
+          } , 150)
+        });        
       })
     })
   }
-  changeDirection(event){
+
+  initObstacles(callback){
+    let obstacles = this.state.obstacles;
+    let boards = this.state.appBoards;
+    obstacles.forEach((obstacle, index) => {
+      obstacle.forEach(obsIndex => {
+        boards[obsIndex.y][obsIndex.x] = `<div class="board__cell obstacle"></div>`
+      })
+    })
+    this.setState({
+      appBoards: boards
+    }, callback())
+  }
+
+  keyPressed(event){
     let keyCode = event.keyCode; 
     let stackMove = this.state.stackMove;
     // console.log(keyCode)   
     switch(keyCode){
-      case 80:
-        if(this.state.isPause){
-          this.setState({
-            isPause: false
-          })
-        }
-        else{
-          this.setState({
-            isPause: true
-          })
-        }
+      case 32: //pause key 'spacebar'
+        this.setState({
+          isPause: true
+        })        
+        break;
+      case 71: //resume key 'g'
+        this.setState({
+          isPause: false
+        })
+        break;
+      case 82: // restart game
+        console.log("restarting");
         break;
       case 37: //left
         if(this.state.directions !== "right" && this.state.directions !== "left"){
@@ -121,7 +247,7 @@ class App extends Component {
   game(){
     // move the snake        
     document.addEventListener('keydown', event => {
-      this.changeDirection(event);
+      this.keyPressed(event);
     })
     let stackMove = this.state.stackMove;
     let directions = this.state.directions;    
@@ -133,7 +259,7 @@ class App extends Component {
     let headX = bodies[0].x;
     let headY = bodies[0].y;    
     let isDead = this.state.isDead;    
-    if(!this.state.isPause){
+    if(!this.state.isPause && !this.state.isDead){
       let tail = bodies.pop();
       // console.log(headY, headX)
       if(headX === this.state.foodPos.x && headY === this.state.foodPos.y){        
@@ -154,7 +280,7 @@ class App extends Component {
             console.log(err)
           })         
           this.setState({
-            compliment: `<div class="compliment__good">Boleh <br> juga lu.</div>`
+            compliment: `<div class="compliment__good"><p>Boleh</p><p>juga</p><p>lu.</p></div>`
           })
         }
         this.setState({
@@ -226,13 +352,13 @@ class App extends Component {
 
       bodies.forEach((body, index) => {
         if(index === 0){          
-          if(boards[body.y][body.x] === `<div class="board__cell snake__body"></div>`){
+          if(boards[body.y][body.x] === `<div class="board__cell snake__body"></div>` || boards[body.y][body.x] === `<div class="board__cell obstacle"></div>`){
             console.log("mati");
             isDead = true
             this.setState({
               isPause: true,
               isDead: true,
-              compliment: `<div class="compliment__bad">Bego lu!!!</div>`
+              compliment: `<div class="compliment__bad"><p>Bego</p><p>lu!!!</p></div>`
             })
             badComploment.play()
             .then(() => {
@@ -240,7 +366,9 @@ class App extends Component {
             })
             .catch(err => console.log(err))
           }
-          boards[body.y][body.x] = `<div class="board__cell snake__body head"></div>`; // redraw head
+          else{
+            boards[body.y][body.x] = `<div class="board__cell snake__body head"></div>`; // redraw head
+          }          
         }
         else if(index === bodies.length - 1){
           boards[body.y][body.x] = `<div class="board__cell snake__body tail"></div>`; // redraw tail
@@ -264,15 +392,7 @@ class App extends Component {
   initFood(callback){
     if(this.state.needFood){
       console.log("generate food")
-      let boards = this.state.appBoards;
-      // let foodX = Math.round(Math.random() * this.state.boards.width);
-      // let foodY = Math.round(Math.random() * this.state.boards.height);
-      // if(foodX === this.state.boards.width){
-      //   foodX -= 1;
-      // }
-      // else if(foodY === this.state.boards.height){
-      //   foodY -= 1;
-      // }            
+      let boards = this.state.appBoards;      
       let emptyCells = document.getElementsByClassName("empty-cell");
       let foodIndex = Math.round(Math.random() * emptyCells.length);
       let foodX = parseInt(emptyCells[foodIndex].getAttribute("x"), 10);
@@ -294,7 +414,7 @@ class App extends Component {
   initSnake(){
     return new Promise((resolve, reject) => {
       let headX = 3;
-      let headY = 1;
+      let headY = 9;
       let length = this.state.score + 3;
       let boards = this.state.appBoards;
       let snakeBody = [];
@@ -340,14 +460,21 @@ class App extends Component {
         </section>
         <div className="app__screen-wrapper">          
           <div className="board__wrapper" dangerouslySetInnerHTML={{__html: stringRow.join("")}}></div>           
-          <div className="app__notification-wrapper">
+          <div className="sidebar-notification__wrapper">
+            <div className="notification__score-wrapper">
+              <p>SCORE</p>
+              <p>{this.state.score}</p>
+            </div>
+            <div className="notification__compliment-wrapper" dangerouslySetInnerHTML={{__html: this.state.compliment}}></div>
+          </div>
+          {/* <div className="app__notification-wrapper">
             <div className="notification__score-wrapper">
               <span>Score: </span>
               <span>{this.state.score}</span>
             </div>
             <div className="notification__compliment-wrapper" dangerouslySetInnerHTML={{__html: this.state.compliment}}>              
             </div>
-          </div>          
+          </div>           */}
         </div>
         <section className="app__controller-wrapper">
           <div className="controller__direction-wrapper">

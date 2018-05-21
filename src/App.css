@@ -295,11 +295,13 @@ html, body, #root{
   font-size: 10px;
 }
 
-.contribute-promo a{
+.contribute-promo a,
+.react-promo a{
   color: #000;
 }
 
-.contribute-promo img{
+.contribute-promo img,
+.react-promo img{
   height: 10px;
   width: auto;
   margin: 0 5px;

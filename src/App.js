@@ -7,16 +7,17 @@ import moveSound from './assets/sounds/move.wav';
 import rightArrow from './assets/icons/right-arrow.png';
 import leftArrow from './assets/icons/left-arrow.png';
 import githubIco from './assets/icons/github.png';
+import reactIco from './assets/icons/reactjs.png';
 
 const eat = new Audio(eatAudio);
 const goodCompliment = new Audio(bolehJugaLu);
 const badCompliment = new Audio(begoLu);
 const move = new Audio(moveSound);
 
-move.volume = 0.5;
-goodCompliment.volume = 0.5;
-badCompliment.volume = 0.5;
-move.volume = 0.5;
+move.volume = 0.2;
+goodCompliment.volume = 0.2;
+badCompliment.volume = 0.2;
+move.volume = 0.2;
 
 badCompliment.onended = function(){
   badCompliment.pause();
@@ -229,7 +230,9 @@ class App extends Component {
       isDead: false,
       isPause: false,
       needFood: true,
-      directions: "right"
+      directions: "right",
+      score: 0,
+      compliment: ""
     },() => {
       this.setState({
         snakeBody: [
@@ -404,7 +407,7 @@ class App extends Component {
     let headX = bodies[0].x;
     let headY = bodies[0].y;    
     let isDead = this.state.isDead;    
-    if(!this.state.isPause && !this.state.isDead){
+    if(!this.state.isPause && !isDead){
       let tail = bodies.pop();
       // console.log(headY, headX)
       if(headX === this.state.foodPos.x && headY === this.state.foodPos.y){        
@@ -433,95 +436,99 @@ class App extends Component {
           score: this.state.score + 1
         })
         bodies.push(tail);
-      }      
+      }     
+      let newHead; 
       switch(directions){
         case "right":         
           if(headX + 1 < this.state.boards.width){
-            bodies.unshift({
+            newHead = {
               x: headX + 1,
               y: headY
-            })
+            };
           }
           else{
-            bodies.unshift({
+            newHead = {
               x: 0,
               y: headY
-            })
+            };
           }          
           break;
         case "down": 
           if(headY + 1 < this.state.boards.height){
-            bodies.unshift({
+            newHead = {
               x: headX,
               y: headY + 1
-            })
+            };
           }
           else{
-            bodies.unshift({
+            newHead = {
               x: headX,
               y: 0
-            })
+            };
           }          
           break;
         case "left": 
           if(headX> 0){
-            bodies.unshift({
+            newHead = {
               x: headX - 1,
               y: headY
-            })
+            };
           }
           else{
-            bodies.unshift({
+            newHead = {
               x: this.state.boards.width - 1,
               y: headY
-            })
+            };
           }          
           break;
         case "up":
           if(headY > 0){
-            bodies.unshift({
+            newHead = {
               x: headX,
               y: headY - 1
-            })
+            };
           }
           else{
-            bodies.unshift({
+            newHead = {
               x: headX,
               y: this.state.boards.height - 1
-            })
+            };
           }          
           break;      
         default:
           console.log("nothing")            
-      }     
-
-      bodies.forEach((body, index) => {
-        if(index === 0){          
-          if(boards[body.y][body.x] === `<div class="board__cell snake__body"></div>` || boards[body.y][body.x] === `<div class="board__cell obstacle"></div>`){
-            console.log("mati");
-            isDead = true
-            this.setState({
-              isPause: true,
-              isDead: true,
-              compliment: `<div class="compliment__bad"><p>Bego</p><p>lu!!!</p></div>`
-            })
-            badCompliment.play()
-            .then(() => {
-              
-            })
-            .catch(err => console.log(err))
+      }      
+      if(boards[newHead.y][newHead.x] === `<div class="board__cell snake__body"></div>` || boards[newHead.y][newHead.x] === `<div class="board__cell obstacle"></div>`){ //new head causing dead
+        console.log("mati");
+        isDead = true
+        this.setState({
+          isPause: true,
+          isDead: true,
+          compliment: `<div class="compliment__bad"><p>Bego</p><p>lu!!!</p></div>`
+        })
+        bodies.push(tail)
+        console.log(tail)
+        badCompliment.play()
+        .then(() => {
+          
+        })
+        .catch(err => console.log(err))
+      }
+      else{
+        bodies.unshift(newHead);
+        bodies.forEach((body, index) => {
+          if(index === 0){
+            boards[body.y][body.x] = `<div class="board__cell snake__body head"></div>`; // redraw head
+          }
+          else if(index === bodies.length - 1){
+            boards[body.y][body.x] = `<div class="board__cell snake__body tail"></div>`; // redraw tail
           }
           else{
-            boards[body.y][body.x] = `<div class="board__cell snake__body head"></div>`; // redraw head
-          }          
-        }
-        else if(index === bodies.length - 1){
-          boards[body.y][body.x] = `<div class="board__cell snake__body tail"></div>`; // redraw tail
-        }
-        else{
-          boards[body.y][body.x] = `<div class="board__cell snake__body"></div>`; // redraw body
-        }
-      })
+            boards[body.y][body.x] = `<div class="board__cell snake__body"></div>`; // redraw body
+          }
+        })
+      }
+      
       // boards[bodies[0].y][bodies[0].x] = `<div class="board__cell snake__body head"></div>`; // redraw head      
       if(!isDead){
         boards[tail.y][tail.x] = `<div class="board__cell empty-cell" x="${tail.x}" y="${tail.y}"></div>`;            
@@ -648,9 +655,12 @@ class App extends Component {
             </div>
           </div>
         </section>
-        <p className="contribute-promo">contribute at 
+        <p className="contribute-promo"> 
         <img src={githubIco} alt="github icon"/>
-        <a href="https://github.com/imdbsd/gimbot-snake" target="_blank">gimbot-snake repo</a></p>
+        <a href="https://github.com/imdbsd/gimbot-snake" target="_blank">gimbot-snake</a>
+        <img src={reactIco} alt="react js icon"/>
+        <a href="https://reactjs.org/" target="_blank">reactjs</a>
+        </p>      
       </div>
     );
   }

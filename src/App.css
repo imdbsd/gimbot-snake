@@ -156,6 +156,7 @@ html, body, #root{
 }
 .notification__credit p {
   margin: 0 0 5px;
+  line-height: 13px;
 }
 
 .craft-author a{

@@ -14,10 +14,10 @@ const goodCompliment = new Audio(bolehJugaLu);
 const badCompliment = new Audio(begoLu);
 const move = new Audio(moveSound);
 
-move.volume = 0.2;
-goodCompliment.volume = 0.2;
-badCompliment.volume = 0.2;
-move.volume = 0.2;
+move.volume = 0.5;
+goodCompliment.volume = 0.5;
+badCompliment.volume = 0.5;
+move.volume = 0.5;
 
 badCompliment.onended = function(){
   badCompliment.pause();
@@ -339,6 +339,7 @@ class App extends Component {
         })
         break;
       case 82: // restart game
+        this.restartGame();
         console.log("restarting");
         break;
       case 37: //left
